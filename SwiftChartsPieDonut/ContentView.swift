@@ -27,7 +27,30 @@ private let results: [GameResult] = [
 ]
 
 struct ContentView: View {
+    // This value goes from 0 to 52 because the sum of the scores is 52.
     @State var selectedAngle: PlottableAngle?
+
+    private func innerRatio(_ result: GameResult) -> Double {
+        return result == selectedResult ? 0.55 : 0.6
+    }
+
+    private func outerRatio(_ result: GameResult) -> Double {
+        return result == selectedResult ? 1 : 0.95
+    }
+
+    // Finds the GameResult that corresponds to given selected value.
+    // The values go from 0 to 52 because the sum of the scores is 52.
+    // The 12 o'clock position is 0 and values increase going clockwise.
+    private var selectedResult: GameResult? {
+        guard let selectedAngle else { return nil }
+        let value = selectedAngle.primitivePlottable
+        var sum = 0
+        for result in results {
+            sum += result.score
+            if value <= sum { return result }
+        }
+        return nil
+    }
 
     private let winner: GameResult = results.reduce(
         results[0],
@@ -37,16 +60,13 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Chart(results, id: \.name) { result in
-                // let innerRatio = result == selectedResult ? 0.5 : 0.618
-                let innerRatio = 0.618
-
                 // The SectorMark instances in donut charts typically
                 // have the same value for the innerRadius argument
                 // and do not specify an outerRadius argument.
                 SectorMark(
                     angle: .value("Score", result.score),
-                    innerRadius: .ratio(innerRatio),
-                    // outerRadius: .ratio(outerRatio),
+                    innerRadius: .ratio(innerRatio(result)),
+                    outerRadius: .ratio(outerRatio(result)),
                     angularInset: 2
                 )
                 .cornerRadius(10)
@@ -65,9 +85,6 @@ struct ContentView: View {
             }
         }
         .padding()
-        .onChange(of: selectedAngle) {
-            print("selectedAngle =", selectedAngle)
-        }
     }
 }
 
