@@ -1,7 +1,14 @@
 import Charts
 import SwiftUI
 
-struct GameResult: Identifiable {
+struct PlottableAngle: Equatable, Plottable {
+    var primitivePlottable: Int
+    init?(primitivePlottable: Int) {
+        self.primitivePlottable = primitivePlottable
+    }
+}
+
+struct GameResult: Equatable, Identifiable {
     var id: String { name }
     var name: String
     var score: Int
@@ -20,6 +27,8 @@ private let results: [GameResult] = [
 ]
 
 struct ContentView: View {
+    @State var selectedAngle: PlottableAngle?
+
     private let winner: GameResult = results.reduce(
         results[0],
         { winner, result in result.score > winner.score ? result : winner }
@@ -28,21 +37,22 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Chart(results, id: \.name) { result in
+                // let innerRatio = result == selectedResult ? 0.5 : 0.618
+                let innerRatio = 0.618
+
                 // The SectorMark instances in donut charts typically
                 // have the same value for the innerRadius argument
                 // and do not specify an outerRadius argument.
-                // let innerRatio = Double.random(in: 0.2 ... 0.6)
-                // let outerRatio = Double.random(in: 0.6 ... 1)
                 SectorMark(
                     angle: .value("Score", result.score),
-                    innerRadius: .ratio(0.618),
-                    // innerRadius: .ratio(innerRatio),
+                    innerRadius: .ratio(innerRatio),
                     // outerRadius: .ratio(outerRatio),
                     angularInset: 2
                 )
                 .cornerRadius(10)
                 .foregroundStyle(by: .value("Name", result.name))
             }
+            .chartAngleSelection($selectedAngle)
             .chartBackground { proxy in
                 GeometryReader { geometry in
                     let frame = geometry[proxy.plotAreaFrame]
@@ -55,6 +65,9 @@ struct ContentView: View {
             }
         }
         .padding()
+        .onChange(of: selectedAngle) {
+            print("selectedAngle =", selectedAngle)
+        }
     }
 }
 
