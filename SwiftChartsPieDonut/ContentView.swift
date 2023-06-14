@@ -77,9 +77,15 @@ struct ContentView: View {
                 GeometryReader { geometry in
                     let frame = geometry[proxy.plotAreaFrame]
                     VStack {
-                        Text("Winner").font(.headline)
-                        Text(winner.name)
+                        if let selectedResult {
+                            Text(selectedResult.name)
+                            Text("\(selectedResult.score)")
+                        } else {
+                            Text("Winner").fontWeight(.bold)
+                            Text(winner.name)
+                        }
                     }
+                    .font(.largeTitle)
                     .position(x: frame.midX, y: frame.midY)
                 }
             }
