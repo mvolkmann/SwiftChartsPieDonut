@@ -28,7 +28,7 @@ private let results: [GameResult] = [
 
 struct ContentView: View {
     // This value goes from 0 to 52 because the sum of the scores is 52.
-    @State var selectedAngle: PlottableAngle?
+    @State private var selectedAngle: PlottableAngle?
 
     private func innerRatio(_ result: GameResult) -> Double {
         return result == selectedResult ? 0.55 : 0.6
@@ -71,6 +71,7 @@ struct ContentView: View {
                 )
                 .cornerRadius(10)
                 .foregroundStyle(by: .value("Name", result.name))
+                .opacity(result == selectedResult ? 1.0 : 0.5)
             }
             .chartAngleSelection($selectedAngle)
             .chartBackground { proxy in
